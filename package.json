@@ -1,0 +1,27 @@
+{
+  "name": "songboard-bot",
+  "module": "src/index.ts",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/eslint": "^8.56.10",
+    "@types/eslint__js": "^8.42.3",
+    "prettier": "^3.2.5",
+    "typescript": "5.4.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "@eslint/js": "^8.57.0",
+    "arktype": "^2.0.0-dev.13",
+    "chalk": "4",
+    "discord.js": "^14.15.2",
+    "dotenv": "^16.4.5",
+    "eslint": "^8.57.0",
+    "glob": "^10.3.16",
+    "typescript-eslint": "^7.10.0"
+  },
+  "scripts": {
+    "dev": "bun src/bun.ts"
+  }
+}

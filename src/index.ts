@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import Application from "./core/Application";
 
 async function main() {

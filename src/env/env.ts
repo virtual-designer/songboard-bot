@@ -3,6 +3,7 @@ import "dotenv/config";
 
 export const EnvSchema = type({
     TOKEN: "string",
+    DB_URL: "string",
     "NODE_ENV?": '"development" | "production" | "dev" | "prod"',
 });
 

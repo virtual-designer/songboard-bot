@@ -9,7 +9,7 @@ import {
     User,
     bold,
 } from "discord.js";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import Semaphore from "../concurrent/Semaphore";
 import Service from "../core/Service";
 import { Name } from "../core/ServiceManager";
@@ -74,6 +74,21 @@ class SongboardService extends Service {
         }
 
         await semaphore.acquire();
+
+        const existing =
+            await this.application.drizzle.query.songMessages.findFirst({
+                where: and(
+                    eq(songMessages.messageId, message.id),
+                    eq(songMessages.channelId, message.channelId),
+                    eq(songMessages.guildId, guild.id),
+                ),
+            });
+
+        if (existing) {
+            semaphore.release();
+            console.log("Song message already exists");
+            return;
+        }
 
         if (
             !this.allowedLinks.some((link) => message.content?.includes(link))

@@ -35,6 +35,8 @@ class SongboardService extends Service {
             return;
         }
 
+        this.application.logger.debug(`Reaction added: ${reaction.emoji.name}`);
+
         const { songboard } = this.application
             .service("configurationService")
             .forGuild(reaction.message.guild.id);
@@ -80,6 +82,11 @@ class SongboardService extends Service {
         if (!id) {
             return;
         }
+
+        this.application.logger.debug(
+            reaction.count.toString(),
+            songboard.min_reactions.toString(),
+        );
 
         if (reaction.count < songboard.min_reactions) {
             return;

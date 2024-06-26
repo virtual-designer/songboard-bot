@@ -76,8 +76,6 @@ async function fetchCredentials(url: string, key: string) {
             for (const key in response.data.config) {
                 process.env[key] = response.data.config[key];
             }
-
-            reloadEnv();
         } else {
             throw new Error("Invalid response received");
         }
@@ -109,8 +107,4 @@ async function parseEnv(rawEnv = process.env) {
     return env;
 }
 
-export let env = await parseEnv();
-
-export async function reloadEnv() {
-    env = await parseEnv();
-}
+export const env = await parseEnv();

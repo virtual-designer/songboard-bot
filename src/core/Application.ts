@@ -4,7 +4,7 @@ import { Client, GatewayIntentBits } from "discord.js";
 import path from "path";
 import { createInterface } from "readline/promises";
 import Database from "../database/Database";
-import { env } from "../env/env";
+import { reloadEnv } from "../env/env";
 import Logger from "../logging/Logger";
 import { isDevMode } from "../utils/utils";
 import ClassLoader from "./ClassLoader";
@@ -120,6 +120,8 @@ class Application {
                 for (const key in response.data.config) {
                     process.env[key] = response.data.config[key];
                 }
+
+                reloadEnv();
             } else {
                 throw new Error("Invalid response received");
             }
@@ -132,7 +134,7 @@ class Application {
     }
 
     protected abort() {
-        this.logger.fatal("Kernel boot aborted");
+        this.logger.fatal("Application boot aborted");
         process.exit(-1);
     }
 
@@ -198,7 +200,7 @@ class Application {
     }
 
     public async start() {
-        await this.client.login(env.TOKEN);
+        await this.client.login(process.env.TOKEN);
     }
 
     public get drizzle() {

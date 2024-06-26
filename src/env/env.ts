@@ -9,8 +9,8 @@ export const EnvSchema = type({
 
 export type EnvType = inferTypeRoot<typeof EnvSchema>;
 
-function parseEnv() {
-    const env = EnvSchema(process.env);
+function parseEnv(rawEnv = process.env) {
+    const env = EnvSchema(rawEnv);
 
     if (env instanceof type.errors) {
         console.error(
@@ -22,4 +22,8 @@ function parseEnv() {
     return env;
 }
 
-export const env = parseEnv();
+export let env = parseEnv();
+
+export function reloadEnv() {
+    env = parseEnv();
+}

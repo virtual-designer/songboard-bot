@@ -225,21 +225,21 @@ class SongboardService extends Service {
         semaphore.release();
     }
 
-    private createActionRow(rowId: number, votes = 0) {
+    private createActionRow(rowId: number, upvotes = 0, downvotes = 0) {
         const upvoteButton = new ButtonBuilder()
             .setCustomId(`upvote_${rowId}`)
-            .setLabel("Upvote")
+            .setLabel(`Upvote (${upvotes})`)
             .setStyle(ButtonStyle.Secondary);
 
         const disabledCountButton = new ButtonBuilder()
             .setCustomId("disabled_count")
-            .setLabel(votes.toString())
+            .setLabel((upvotes - downvotes).toString())
             .setStyle(ButtonStyle.Secondary)
             .setDisabled(true);
 
         const downvoteButton = new ButtonBuilder()
             .setCustomId(`downvote_${rowId}`)
-            .setLabel("Downvote")
+            .setLabel(`Downvote (${downvotes})`)
             .setStyle(ButtonStyle.Secondary);
 
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -330,7 +330,8 @@ class SongboardService extends Service {
                 components: [
                     this.createActionRow(
                         numericRowId,
-                        upvotes.length - downvotes.length,
+                        upvotes.length,
+                        downvotes.length,
                     ),
                 ],
             });
@@ -392,7 +393,8 @@ class SongboardService extends Service {
                 components: [
                     this.createActionRow(
                         numericRowId,
-                        upvotes.length - downvotes.length,
+                        upvotes.length,
+                        downvotes.length,
                     ),
                 ],
             });

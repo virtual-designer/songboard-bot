@@ -35,6 +35,8 @@ class SongboardService extends Service {
             return;
         }
 
+        console.log(reaction);
+
         this.application.logger.debug(`Reaction added: ${reaction.emoji.name}`);
 
         const { songboard } = this.application
@@ -52,10 +54,12 @@ class SongboardService extends Service {
                     reaction.message.channel.parentId,
                 ))
         ) {
+            console.log("Returning as conditions don't match");
             return;
         }
 
         if (songboard.channel === reaction.message.channelId) {
+            console.log("Cannot operate inside songboard channel");
             return;
         }
 
@@ -75,6 +79,7 @@ class SongboardService extends Service {
             !this.allowedLinks.some((link) => message.content?.includes(link))
         ) {
             semaphore.release();
+            console.log("No spotify link");
             return;
         }
 
@@ -82,6 +87,7 @@ class SongboardService extends Service {
 
         if (!id) {
             semaphore.release();
+            console.log("Invalid emote");
             return;
         }
 
@@ -92,6 +98,7 @@ class SongboardService extends Service {
 
         if (reaction.count < songboard.min_reactions) {
             semaphore.release();
+            console.log("Less reactions");
             return;
         }
 
@@ -99,6 +106,7 @@ class SongboardService extends Service {
 
         if (!songboardChannel?.isTextBased()) {
             semaphore.release();
+            console.log("Not a text channel");
             return;
         }
 
@@ -111,6 +119,7 @@ class SongboardService extends Service {
 
         if (!songLinks && !shortLinks) {
             semaphore.release();
+            console.log("Regex failed");
             return;
         }
 
@@ -125,6 +134,7 @@ class SongboardService extends Service {
         const author = message.member?.user ?? message.author;
 
         if (!author) {
+            console.log("No message author");
             semaphore.release();
             return;
         }

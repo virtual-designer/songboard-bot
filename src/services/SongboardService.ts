@@ -122,12 +122,19 @@ class SongboardService extends Service {
             "",
         );
 
+        const author = message.member?.user ?? message.author;
+
+        if (!author) {
+            semaphore.release();
+            return;
+        }
+
         const { id: songboardMessageId } = await songboardChannel.send({
             embeds: [
                 {
                     author: {
-                        name: user.username,
-                        icon_url: user.displayAvatarURL(),
+                        name: author.username,
+                        icon_url: author.displayAvatarURL(),
                         url: message.url,
                     },
                     url: message.url,

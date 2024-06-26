@@ -1,4 +1,4 @@
-import type { Guild, TextBasedChannel } from "discord.js";
+import type { Client, Guild, TextBasedChannel } from "discord.js";
 
 export const fetchChannel = async (guild: Guild, channelId: string) => {
     const channel = guild.channels.cache.get(channelId);
@@ -28,4 +28,18 @@ export const fetchMessage = async (
     }
 
     return message;
+};
+
+export const fetchUser = async (client: Client, userId: string) => {
+    const user = client.users.cache.get(userId);
+
+    if (!user) {
+        try {
+            return await client.users.fetch(userId);
+        } catch {
+            return null;
+        }
+    }
+
+    return user;
 };

@@ -2,7 +2,12 @@
     "cSpell.words": [
         "arktype",
         "clazz",
-        "tseslint"
+        "downvoted",
+        "downvotes",
+        "Songboard",
+        "tseslint",
+        "upvoted",
+        "upvotes"
     ],
     "eslint.experimental.useFlatConfig": true,
     "editor.formatOnSave": true,

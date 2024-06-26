@@ -1,22 +1,23 @@
 {
-  "compilerOptions": {
-    "lib": ["ESNext", "DOM"],
-    "target": "es2022",
-    "module": "CommonJS",
-    "moduleDetection": "force",
-    "moduleResolution": "Node",
-    "strict": true,
-    "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
-    "noImplicitOverride": true,
-    "noImplicitThis": true,
-    "outDir": "build",
-    "rootDir": "src",
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  }
+    "compilerOptions": {
+        "lib": ["ESNext", "DOM"],
+        "target": "es2022",
+        "module": "CommonJS",
+        "moduleDetection": "force",
+        "moduleResolution": "Node",
+        "strict": true,
+        "skipLibCheck": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "noPropertyAccessFromIndexSignature": false,
+        "noImplicitOverride": true,
+        "noImplicitThis": true,
+        "outDir": "build",
+        "rootDir": "src",
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    },
+    "exclude": ["drizzle.config.ts"]
 }

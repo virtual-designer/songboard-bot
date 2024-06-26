@@ -7,7 +7,7 @@ class AboutCommand extends Command {
     public override readonly usage = [""];
 
     public override async execute(context: LegacyContext) {
-        context.reply("This is a bot made by me, a human.").success();
+        await context.reply("I made myself.").success();
     }
 }
 

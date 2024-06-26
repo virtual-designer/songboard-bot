@@ -74,12 +74,14 @@ class SongboardService extends Service {
         if (
             !this.allowedLinks.some((link) => message.content?.includes(link))
         ) {
+            semaphore.release();
             return;
         }
 
         const id = reaction.emoji.id ?? reaction.emoji.name;
 
         if (!id) {
+            semaphore.release();
             return;
         }
 
@@ -89,12 +91,14 @@ class SongboardService extends Service {
         );
 
         if (reaction.count < songboard.min_reactions) {
+            semaphore.release();
             return;
         }
 
         const songboardChannel = await fetchChannel(guild, songboard.channel);
 
         if (!songboardChannel?.isTextBased()) {
+            semaphore.release();
             return;
         }
 
@@ -106,6 +110,7 @@ class SongboardService extends Service {
         );
 
         if (!songLinks && !shortLinks) {
+            semaphore.release();
             return;
         }
 

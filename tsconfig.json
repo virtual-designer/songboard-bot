@@ -2,7 +2,7 @@
     "compilerOptions": {
         "lib": ["ESNext", "DOM"],
         "target": "es2022",
-        "module": "CommonJS",
+        "module": "ESNext",
         "moduleDetection": "force",
         "moduleResolution": "Node",
         "strict": true,

@@ -118,7 +118,7 @@ class Application {
     }
 
     public async start() {
-        await this.client.login(env.TOKEN);
+        await this.client.login(env.SONGBOARD_BOT_TOKEN);
     }
 
     public get drizzle() {

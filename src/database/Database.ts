@@ -12,7 +12,7 @@ class Database {
 
     private createConnection() {
         return new Pool({
-            connectionString: env.DB_URL,
+            connectionString: env.SONGBOARD_BOT_DB_URL,
         });
     }
 

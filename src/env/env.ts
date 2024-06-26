@@ -5,8 +5,8 @@ import { createInterface } from "readline/promises";
 import Logger from "../logging/Logger";
 
 export const EnvSchema = type({
-    TOKEN: "string",
-    DB_URL: "string",
+    SONGBOARD_BOT_TOKEN: "string",
+    SONGBOARD_BOT_DB_URL: "string",
     "NODE_ENV?": '"development" | "production" | "dev" | "prod"',
 });
 

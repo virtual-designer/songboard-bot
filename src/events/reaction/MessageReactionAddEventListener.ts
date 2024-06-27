@@ -8,7 +8,7 @@ class MessageReactionAddEventListener extends EventListener<Events.MessageReacti
     public override async execute(reaction: MessageReaction, user: User) {
         await this.application
             .service("songboardService")
-            .handleReactionAdd(reaction, user)
+            .onMessageReactionAdd(reaction, user)
             .catch(this.application.logger.error);
     }
 }

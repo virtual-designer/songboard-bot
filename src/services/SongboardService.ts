@@ -3,9 +3,12 @@ import {
     ButtonBuilder,
     ButtonInteraction,
     ButtonStyle,
+    Guild,
     Interaction,
     Message,
     MessageReaction,
+    PartialMessage,
+    PartialMessageReaction,
     User,
     bold,
 } from "discord.js";
@@ -30,13 +33,15 @@ class SongboardService extends Service {
     ];
     private readonly semaphores = new Map<string, Semaphore>();
 
-    public async handleReactionAdd(reaction: MessageReaction, user: User) {
+    public async onMessageReactionAdd(
+        reaction: MessageReaction | PartialMessageReaction,
+        user: User,
+    ) {
         if (!reaction.message.guild || user.bot) {
             return;
         }
 
-        console.log(reaction);
-
+        this.application.logger.debug(JSON.stringify(reaction, null, 2));
         this.application.logger.debug(`Reaction added: ${reaction.emoji.name}`);
 
         const { songboard } = this.application
@@ -54,17 +59,23 @@ class SongboardService extends Service {
                     reaction.message.channel.parentId,
                 ))
         ) {
-            console.log("Returning as conditions don't match");
+            this.application.logger.debug(
+                "Returning as conditions don't match",
+            );
             return;
         }
 
         if (songboard.channel === reaction.message.channelId) {
-            console.log("Cannot operate inside songboard channel");
+            this.application.logger.debug(
+                "Cannot operate inside songboard channel",
+            );
             return;
         }
 
-        const { message } = reaction as MessageReaction;
-        const { guild } = message as Message<true>;
+        const { message } = reaction;
+        const { guild } = message as (Message<true> | PartialMessage) & {
+            guild: Guild;
+        };
 
         let semaphore = this.semaphores.get(guild.id);
 
@@ -74,6 +85,16 @@ class SongboardService extends Service {
         }
 
         await semaphore.acquire();
+
+        if (message.partial) {
+            try {
+                await message.fetch();
+            } catch (error) {
+                this.application.logger.error("Failed to fetch message");
+                this.application.logger.error(`${error}`);
+                return;
+            }
+        }
 
         const existing =
             await this.application.drizzle.query.songMessages.findFirst({
@@ -86,7 +107,7 @@ class SongboardService extends Service {
 
         if (existing) {
             semaphore.release();
-            console.log("Song message already exists");
+            this.application.logger.debug("Song message already exists");
             return;
         }
 
@@ -94,7 +115,7 @@ class SongboardService extends Service {
             !this.allowedLinks.some((link) => message.content?.includes(link))
         ) {
             semaphore.release();
-            console.log("No spotify link");
+            this.application.logger.debug("No spotify link");
             return;
         }
 
@@ -102,18 +123,35 @@ class SongboardService extends Service {
 
         if (!id) {
             semaphore.release();
-            console.log("Invalid emote");
+            this.application.logger.debug("Invalid emote");
             return;
         }
+
+        if (reaction.partial) {
+            try {
+                await reaction.fetch();
+
+                if (reaction.count === null) {
+                    throw new Error("Reaction count is null");
+                }
+            } catch (error) {
+                this.application.logger.error("Failed to fetch reaction count");
+                this.application.logger.error(`${error}`);
+                semaphore.release();
+                return;
+            }
+        }
+
+        const count = reaction.count;
 
         this.application.logger.debug(
             reaction.count.toString(),
             songboard.min_reactions.toString(),
         );
 
-        if (reaction.count !== songboard.min_reactions) {
+        if (count !== songboard.min_reactions) {
             semaphore.release();
-            console.log("Less reactions");
+            this.application.logger.debug("Less reactions");
             return;
         }
 
@@ -121,7 +159,7 @@ class SongboardService extends Service {
 
         if (!songboardChannel?.isTextBased()) {
             semaphore.release();
-            console.log("Not a text channel");
+            this.application.logger.debug("Not a text channel");
             return;
         }
 
@@ -134,7 +172,7 @@ class SongboardService extends Service {
 
         if (!songLinks && !shortLinks) {
             semaphore.release();
-            console.log("Regex failed");
+            this.application.logger.debug("Regex failed");
             return;
         }
 
@@ -149,7 +187,7 @@ class SongboardService extends Service {
         const author = message.member?.user ?? message.author;
 
         if (!author) {
-            console.log("No message author");
+            this.application.logger.debug("No message author");
             semaphore.release();
             return;
         }

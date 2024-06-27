@@ -1,5 +1,5 @@
 import type { ClientEvents } from "discord.js";
-import { Client, GatewayIntentBits } from "discord.js";
+import { Client, GatewayIntentBits, Partials } from "discord.js";
 import path from "path";
 import Database from "../database/Database";
 import { env } from "../env/env";
@@ -38,6 +38,7 @@ class Application {
                 GatewayIntentBits.GuildMembers,
                 GatewayIntentBits.MessageContent,
             ],
+            partials: [Partials.Message, Partials.Reaction],
         });
     }
 

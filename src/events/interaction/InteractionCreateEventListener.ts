@@ -6,10 +6,19 @@ class InteractionCreateEventListener extends EventListener<Events.InteractionCre
     public override readonly name = Events.InteractionCreate;
 
     public override async execute(interaction: Interaction) {
-        await this.application
-            .service("songboardService")
-            .onInteractionCreate(interaction)
-            .catch(this.application.logger.error);
+        if (interaction.isChatInputCommand()) {
+            await this.application
+                .service("commandManager")
+                .runFromInteraction(interaction)
+                .catch(this.application.logger.error);
+        }
+
+        if (interaction.isButton()) {
+            await this.application
+                .service("songboardService")
+                .onInteractionCreate(interaction)
+                .catch(this.application.logger.error);
+        }
     }
 }
 

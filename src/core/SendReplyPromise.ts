@@ -1,5 +1,7 @@
 import type {
+    AutocompleteInteraction,
     ChatInputCommandInteraction,
+    Interaction,
     Message,
     MessageCreateOptions,
     MessagePayload,
@@ -13,11 +15,17 @@ class SendReplyPromise extends Promise<Message<true>> {
     public constructor(
         target:
             | Message<true>
+            | Exclude<Interaction, AutocompleteInteraction>
             | TextBasedChannel
             | User
             | ChatInputCommandInteraction,
         options: string | MessagePayload | MessageCreateOptions,
     ) {
+        if (typeof target === "function") {
+            super(target);
+            return;
+        }
+
         super((resolve, reject) => {
             queueMicrotask(() => {
                 if ("send" in target) {
@@ -26,9 +34,11 @@ class SendReplyPromise extends Promise<Message<true>> {
                         .then((message) => resolve(message as Message<true>))
                         .catch(reject);
                 } else {
-                    target
+                    (target as ChatInputCommandInteraction)
                         .reply(this.transformOptions(options))
-                        .then((message) => resolve(message as Message<true>))
+                        .then((message) =>
+                            resolve(message as unknown as Message<true>),
+                        )
                         .catch(reject);
                 }
             });

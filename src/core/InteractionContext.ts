@@ -1,6 +1,13 @@
-import type { ChatInputCommandInteraction, GuildBasedChannel, GuildMember, InteractionReplyOptions, Message, MessageCreateOptions, MessagePayload } from "discord.js";
+import type {
+    ChatInputCommandInteraction,
+    GuildBasedChannel,
+    GuildMember,
+    MessageCreateOptions,
+    MessagePayload,
+} from "discord.js";
 import { assertNotNull } from "../utils/utils";
 import Context from "./Context";
+import SendReplyPromise from "./SendReplyPromise";
 
 class InteractionContext extends Context<ChatInputCommandInteraction> {
     public override get guild() {
@@ -31,8 +38,14 @@ class InteractionContext extends Context<ChatInputCommandInteraction> {
         return assertNotNull(this._value.channelId);
     }
 
-    public override async reply(options: string | MessageCreateOptions | MessagePayload) {
-        return <Promise<Message<true>>> <unknown> this._value.reply(typeof options === "string" ? {content:options,fetchReply:true}:{...options,fetchReply:true} as InteractionReplyOptions);
+    public get options() {
+        return this._value.options;
+    }
+
+    public override reply(
+        options: string | MessageCreateOptions | MessagePayload,
+    ): SendReplyPromise {
+        return new SendReplyPromise(this.value, options);
     }
 }
 

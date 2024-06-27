@@ -5,7 +5,11 @@ import path from "path";
 import Application from "../core/Application";
 import Service from "../core/Service";
 import { Name } from "../core/ServiceManager";
-import { GuildConfigContainerSchema, GuildConfigSchema, GuildConfigType } from "../schemas/GuildConfig";
+import {
+    GuildConfigContainerSchema,
+    GuildConfigSchema,
+    GuildConfigType,
+} from "../schemas/GuildConfig";
 
 declare global {
     interface ApplicationServices {
@@ -15,7 +19,10 @@ declare global {
 
 @Name("configurationService")
 class ConfigurationService extends Service {
-    private static readonly GUILD_CONFIGURATION_FILE_PATH = path.resolve(__dirname, "../../config/config.json");
+    private static readonly GUILD_CONFIGURATION_FILE_PATH = path.resolve(
+        __dirname,
+        "../../config/config.json",
+    );
     private _guildJson: Record<string, GuildConfigType | undefined> = {};
     private _defaultGuildConfig: GuildConfigType;
 
@@ -39,7 +46,10 @@ class ConfigurationService extends Service {
     }
 
     public async load() {
-        const contents = await fs.readFile(ConfigurationService.GUILD_CONFIGURATION_FILE_PATH, { encoding: "utf-8" });
+        const contents = await fs.readFile(
+            ConfigurationService.GUILD_CONFIGURATION_FILE_PATH,
+            { encoding: "utf-8" },
+        );
         const guildJson = JSON.parse(contents);
         const parsed = GuildConfigContainerSchema(guildJson);
 
@@ -49,7 +59,33 @@ class ConfigurationService extends Service {
         }
 
         this._guildJson = parsed;
-        this.logger.info("Loaded configuration from file: ", ConfigurationService.GUILD_CONFIGURATION_FILE_PATH);
+        this.logger.info(
+            "Loaded configuration from file: ",
+            ConfigurationService.GUILD_CONFIGURATION_FILE_PATH,
+        );
+    }
+
+    public async write() {
+        await fs.writeFile(
+            ConfigurationService.GUILD_CONFIGURATION_FILE_PATH,
+            JSON.stringify(this._guildJson),
+        );
+
+        this.logger.info(
+            "Wrote configuration to file: ",
+            ConfigurationService.GUILD_CONFIGURATION_FILE_PATH,
+        );
+    }
+
+    public async transaction<T>(
+        guildId: string,
+        callback: (config: GuildConfigType) => Awaitable<T>,
+    ): Promise<T> {
+        const config = this.forGuild(guildId);
+        const result = await callback(config);
+        this._guildJson[guildId] = config;
+        await this.write();
+        return result;
     }
 }
 

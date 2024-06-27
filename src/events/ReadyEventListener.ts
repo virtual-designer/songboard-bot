@@ -7,6 +7,9 @@ class ReadyEventListener extends EventListener<Events.ClientReady> {
 
     public async execute(client: Client<true>) {
         this.application.logger.info(`Logged in as @${client.user.username}`);
+        await this.application
+            .service("commandManager")
+            .registerApplicationCommands();
     }
 }
 

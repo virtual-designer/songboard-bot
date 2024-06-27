@@ -43,3 +43,17 @@ export const fetchUser = async (client: Client, userId: string) => {
 
     return user;
 };
+
+export const fetchMember = async (guild: Guild, memberId: string) => {
+    const member = guild.members.cache.get(memberId);
+
+    if (!member) {
+        try {
+            return await guild.members.fetch(memberId);
+        } catch {
+            return null;
+        }
+    }
+
+    return member;
+};

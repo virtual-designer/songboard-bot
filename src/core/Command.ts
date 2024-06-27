@@ -6,6 +6,7 @@ import type {
     SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js";
 import { SlashCommandBuilder } from "discord.js";
+import { env } from "../env/env";
 import type Application from "./Application";
 import CommandContextType from "./CommandContextType";
 import type Context from "./Context";
@@ -52,6 +53,13 @@ abstract class Command {
             .setName(this.name)
             .setDescription(this.description)
             .setDMPermission(false);
+    }
+
+    protected emoji(name: string) {
+        return this.application.client.guilds.cache
+            .get(env.SONGBOARD_BOT_HOME_GUILD_ID)
+            ?.emojis.cache.find((e) => e.name === name || e.identifier === name)
+            ?.toString();
     }
 
     public abstract execute(

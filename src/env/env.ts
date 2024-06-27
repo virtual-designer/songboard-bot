@@ -10,6 +10,7 @@ export const EnvSchema = type({
     "SONGBOARD_BOT_REGISTER_COMMANDS?": "'true' | 'false'",
     "NODE_ENV?": '"development" | "production" | "dev" | "prod"',
     "SONGBOARD_BOT_TEST_GUILD_ID?": "string",
+    SONGBOARD_BOT_HOME_GUILD_ID: "string",
 });
 
 export type EnvType = inferTypeRoot<typeof EnvSchema>;

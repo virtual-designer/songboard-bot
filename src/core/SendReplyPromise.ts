@@ -1,6 +1,7 @@
 import type {
     AutocompleteInteraction,
     ChatInputCommandInteraction,
+    Client,
     Interaction,
     Message,
     MessageCreateOptions,
@@ -8,9 +9,11 @@ import type {
     TextBasedChannel,
     User,
 } from "discord.js";
+import { env } from "../env/env";
 
 class SendReplyPromise extends Promise<Message<true>> {
     private _type: "error" | "success" | "default" = "default";
+    private _client?: Client;
 
     public constructor(
         target:
@@ -43,6 +46,15 @@ class SendReplyPromise extends Promise<Message<true>> {
                 }
             });
         });
+
+        this._client = target.client;
+    }
+
+    private getEmoji(name: string) {
+        return this._client?.guilds.cache
+            .get(env.SONGBOARD_BOT_HOME_GUILD_ID)
+            ?.emojis.cache.find((e) => e.name === name || e.identifier === name)
+            ?.toString();
     }
 
     private transformOptions(
@@ -54,9 +66,9 @@ class SendReplyPromise extends Promise<Message<true>> {
             MessageCreateOptions;
 
         if (this._type === "error") {
-            finalOptions.content = `:x: ${finalOptions.content}`;
+            finalOptions.content = `${this.getEmoji("error")} ${finalOptions.content}`;
         } else if (this._type === "success") {
-            finalOptions.content = `✅ ${finalOptions.content}`;
+            finalOptions.content = `${this.getEmoji("check")} ${finalOptions.content}`;
         }
 
         return finalOptions;

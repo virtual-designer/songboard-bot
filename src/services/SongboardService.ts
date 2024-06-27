@@ -296,7 +296,7 @@ class SongboardService extends Service {
 
         const [action, rowId] = interaction.customId.split("_");
 
-        if (!rowId || !action) {
+        if (!rowId || (action !== "upvote" && action !== "downvote")) {
             return;
         }
 

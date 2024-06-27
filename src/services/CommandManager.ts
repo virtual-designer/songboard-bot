@@ -101,7 +101,7 @@ class CommandManager extends Service {
         const context = new LegacyContext(message, argv);
 
         try {
-            await command.execute(context);
+            await command.run(context);
         } catch (error) {
             this.logger.error(`${error}`);
         }
@@ -128,7 +128,7 @@ class CommandManager extends Service {
         const context = new InteractionContext(interaction);
 
         try {
-            await command.execute(context);
+            await command.run(context);
         } catch (error) {
             this.logger.error(`${(error as Error)?.stack}`);
         }

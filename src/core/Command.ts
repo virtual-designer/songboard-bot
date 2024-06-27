@@ -7,9 +7,12 @@ import type {
 } from "discord.js";
 import { SlashCommandBuilder } from "discord.js";
 import { env } from "../env/env";
+import { isSystemAdmin } from "../utils/permission";
 import type Application from "./Application";
 import CommandContextType from "./CommandContextType";
 import type Context from "./Context";
+import type InteractionContext from "./InteractionContext";
+import type LegacyContext from "./LegacyContext";
 
 export type Buildable =
     | SlashCommandBuilder
@@ -27,6 +30,7 @@ abstract class Command {
         CommandContextType.Message,
         CommandContextType.CommandInteraction,
     ];
+    public readonly systemAdminOnly: boolean = false;
 
     public constructor(protected readonly application: Application) {
         this.drizzle = application.database.drizzle;
@@ -65,6 +69,19 @@ abstract class Command {
     public abstract execute(
         context: Context<Message | ChatInputCommandInteraction>,
     ): Awaitable<void>;
+
+    public async run(
+        context: LegacyContext | InteractionContext,
+    ): Promise<void> {
+        if (this.systemAdminOnly && !isSystemAdmin(context.user.id)) {
+            await context
+                .reply("You do not have permission to run this command.")
+                .error();
+            return;
+        }
+
+        await this.execute(context);
+    }
 }
 
 export default Command;

@@ -11,6 +11,7 @@ export const EnvSchema = type({
     "NODE_ENV?": '"development" | "production" | "dev" | "prod"',
     "SONGBOARD_BOT_TEST_GUILD_ID?": "string",
     SONGBOARD_BOT_HOME_GUILD_ID: "string",
+    SONGBOARD_BOT_SYSTEM_ADMINS: "string",
 });
 
 export type EnvType = inferTypeRoot<typeof EnvSchema>;

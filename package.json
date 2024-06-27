@@ -1,34 +1,36 @@
 {
-    "name": "songboard-bot",
-    "version": "1.0.0-beta.1",
-    "module": "src/index.ts",
-    "devDependencies": {
-        "@types/bun": "latest",
-        "@types/eslint": "^8.56.10",
-        "@types/eslint__js": "^8.42.3",
-        "@types/pg": "^8.11.6",
-        "drizzle-kit": "^0.21.4",
-        "prettier": "^3.3.2",
-        "typescript": "5.4.5"
-    },
-    "peerDependencies": {
-        "typescript": "^5.4.0"
-    },
-    "dependencies": {
-        "@eslint/js": "^8.57.0",
-        "arktype": "2.0.0-dev.13",
-        "axios": "^1.7.2",
-        "chalk": "^4.1.2",
-        "discord.js": "^14.15.3",
-        "dotenv": "^16.4.5",
-        "drizzle-orm": "^0.30.10",
-        "eslint": "^8.57.0",
-        "glob": "^10.4.2",
-        "pg": "^8.12.0",
-        "reflect-metadata": "^0.2.2",
-        "typescript-eslint": "^7.14.1"
-    },
-    "scripts": {
-        "dev": "bun src/bun.ts"
-    }
+  "name": "songboard-bot",
+  "version": "1.0.0-beta.1",
+  "module": "src/index.ts",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/eslint": "^8.56.10",
+    "@types/eslint__js": "^8.42.3",
+    "@types/pg": "^8.11.6",
+    "@types/uuid": "^10.0.0",
+    "drizzle-kit": "^0.21.4",
+    "prettier": "^3.3.2",
+    "typescript": "5.4.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "@eslint/js": "^8.57.0",
+    "arktype": "2.0.0-dev.13",
+    "axios": "^1.7.2",
+    "chalk": "^4.1.2",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.30.10",
+    "eslint": "^8.57.0",
+    "glob": "^10.4.2",
+    "pg": "^8.12.0",
+    "reflect-metadata": "^0.2.2",
+    "typescript-eslint": "^7.14.1",
+    "uuid": "^10.0.0"
+  },
+  "scripts": {
+    "dev": "bun src/bun.ts"
+  }
 }

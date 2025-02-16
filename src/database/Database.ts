@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { env } from "../env/env";
 import * as SongMessagesSchema from "../models/SongMessage";
+import { sql } from "drizzle-orm";
 
 class Database {
     public readonly drizzle: ReturnType<typeof this.createDrizzle>;
@@ -17,11 +18,16 @@ class Database {
     }
 
     private createDrizzle() {
-        return drizzle(this.createConnection(), {
+        const db = drizzle(this.createConnection(), {
             schema: {
                 ...SongMessagesSchema,
             },
+            logger: true
         });
+
+	db.execute(sql`SELECT 1`).catch(console.error);
+
+	return db;
     }
 }
 

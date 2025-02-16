@@ -149,7 +149,7 @@ class SongboardService extends Service {
             songboard.min_reactions.toString(),
         );
 
-        if (count !== songboard.min_reactions) {
+        if (count < songboard.min_reactions) {
             semaphore.release();
             this.application.logger.debug("Less reactions");
             return;

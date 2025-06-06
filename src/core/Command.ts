@@ -2,10 +2,11 @@ import type {
     Awaitable,
     ChatInputCommandInteraction,
     Message,
+    PermissionResolvable,
     SlashCommandOptionsOnlyBuilder,
     SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js";
-import { SlashCommandBuilder } from "discord.js";
+import { InteractionContextType, SlashCommandBuilder } from "discord.js";
 import { env } from "../env/env";
 import { isSystemAdmin } from "../utils/permission";
 import type Application from "./Application";
@@ -31,6 +32,7 @@ abstract class Command {
         CommandContextType.CommandInteraction,
     ];
     public readonly systemAdminOnly: boolean = false;
+    public readonly permissions: PermissionResolvable[] = [];
 
     public constructor(protected readonly application: Application) {
         this.drizzle = application.database.drizzle;
@@ -56,7 +58,7 @@ abstract class Command {
         return new SlashCommandBuilder()
             .setName(this.name)
             .setDescription(this.description)
-            .setDMPermission(false);
+            .setContexts(InteractionContextType.Guild);
     }
 
     protected emoji(name: string) {
@@ -73,9 +75,24 @@ abstract class Command {
     public async run(
         context: LegacyContext | InteractionContext,
     ): Promise<void> {
-        if (this.systemAdminOnly && !isSystemAdmin(context.user.id)) {
+        const isAdmin = isSystemAdmin(context.user.id);
+
+        if (this.systemAdminOnly && !isAdmin) {
             await context
                 .reply("You do not have permission to run this command.")
+                .error();
+            return;
+        }
+
+        if (
+            !isAdmin &&
+            this.permissions.length > 0 &&
+            !context.member.permissions.has(this.permissions, true)
+        ) {
+            await context
+                .reply(
+                    "You do not have the required permissions to run this command.",
+                )
                 .error();
             return;
         }

@@ -1,8 +1,9 @@
+import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { env } from "../env/env";
 import * as SongMessagesSchema from "../models/SongMessage";
-import { sql } from "drizzle-orm";
+import * as StarboardMessagesSchema from "../models/StarboardMessage";
 
 class Database {
     public readonly drizzle: ReturnType<typeof this.createDrizzle>;
@@ -21,13 +22,14 @@ class Database {
         const db = drizzle(this.createConnection(), {
             schema: {
                 ...SongMessagesSchema,
+                ...StarboardMessagesSchema,
             },
-            logger: true
+            logger: true,
         });
 
-	db.execute(sql`SELECT 1`).catch(console.error);
+        db.execute(sql`SELECT 1`).catch(console.error);
 
-	return db;
+        return db;
     }
 }
 

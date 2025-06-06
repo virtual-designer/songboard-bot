@@ -10,7 +10,7 @@ export default defineConfig({
         path.resolve(__dirname, "src/models", file),
     ),
     dbCredentials: {
-        url: process.env.DB_URL!,
+        url: process.env.SONGBOARD_BOT_DB_URL!,
     },
     // Print all statements
     verbose: true,

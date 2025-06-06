@@ -1,7 +1,6 @@
 // @ts-check
 
 import eslint from "@eslint/js";
-import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
@@ -10,10 +9,6 @@ export default tseslint.config(
         languageOptions: {
             ecmaVersion: 2024,
             sourceType: "module",
-            globals: {
-                ...globals.node,
-                ...globals.es2021,
-            },
             parserOptions: {
                 project: true,
                 tsconfigRootDir: import.meta.dirname,

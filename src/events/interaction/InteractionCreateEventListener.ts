@@ -14,8 +14,13 @@ class InteractionCreateEventListener extends EventListener<Events.InteractionCre
         }
 
         if (interaction.isButton()) {
-            await this.application
+            this.application
                 .service("songboardService")
+                .onInteractionCreate(interaction)
+                .catch(this.application.logger.error);
+
+            this.application
+                .service("starboardService")
                 .onInteractionCreate(interaction)
                 .catch(this.application.logger.error);
         }

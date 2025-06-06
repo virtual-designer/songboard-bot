@@ -48,6 +48,14 @@ class SongboardService extends Service {
             .service("configurationService")
             .forGuild(reaction.message.guild.id);
 
+        if (songboard?.channel === "0" || !songboard?.reaction_emoji) {
+            this.application.logger.debug(
+                "Songboard is not configured or disabled",
+            );
+
+            return;
+        }
+
         if (
             !songboard?.enabled ||
             (reaction.emoji.id !== songboard?.reaction_emoji &&

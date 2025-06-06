@@ -6,9 +6,9 @@ import CommandContextType from "../../core/CommandContextType";
 import type InteractionContext from "../../core/InteractionContext";
 import { fetchMember } from "../../utils/api";
 
-class SongboardCommand extends Command {
-    public override readonly name = "songboard";
-    public override readonly description: string = "Manage songboard settings";
+class StarboardCommand extends Command {
+    public override readonly name = "starboard";
+    public override readonly description: string = "Manage starboard settings";
     public override readonly usage = ["<subcommand> [...args]"];
     public override readonly supportedContexts = [
         CommandContextType.CommandInteraction,
@@ -23,21 +23,21 @@ class SongboardCommand extends Command {
                 .addSubcommand((subcommand) =>
                     subcommand
                         .setName("enable")
-                        .setDescription("Enable songboard"),
+                        .setDescription("Enable starboard"),
                 )
                 .addSubcommand((subcommand) =>
                     subcommand
                         .setName("disable")
-                        .setDescription("Disable songboard"),
+                        .setDescription("Disable starboard"),
                 )
                 .addSubcommand((subcommand) =>
                     subcommand
                         .setName("channel")
-                        .setDescription("Set a songboard channel")
+                        .setDescription("Set a starboard channel")
                         .addChannelOption((option) =>
                             option
                                 .setName("channel")
-                                .setDescription("The channel for songboard")
+                                .setDescription("The channel for starboard")
                                 .setRequired(true)
                                 .addChannelTypes(ChannelType.GuildText),
                         ),
@@ -45,12 +45,12 @@ class SongboardCommand extends Command {
                 .addSubcommand((subcommand) =>
                     subcommand
                         .setName("emoji")
-                        .setDescription("Set a songboard trigger emoji")
+                        .setDescription("Set a starboard trigger emoji")
                         .addStringOption((option) =>
                             option
                                 .setName("emoji")
                                 .setDescription(
-                                    "The trigger emoji for songboard",
+                                    "The trigger emoji for starboard. Set this to 'ALL' to use all reactions.",
                                 )
                                 .setRequired(true),
                         ),
@@ -59,13 +59,13 @@ class SongboardCommand extends Command {
                     subcommand
                         .setName("count")
                         .setDescription(
-                            "Set a songboard reaction count requirement",
+                            "Set a starboard reaction count requirement",
                         )
                         .addIntegerOption((option) =>
                             option
                                 .setName("min_count")
                                 .setDescription(
-                                    "The minimum reaction count required for songboard",
+                                    "The minimum reaction count required for starboard",
                                 )
                                 .setRequired(true)
                                 .setMinValue(0)
@@ -116,22 +116,22 @@ class SongboardCommand extends Command {
         await this.application
             .service("configurationService")
             .transaction(context.guildId, (config) => {
-                config.songboard ??= {} as unknown as typeof config.songboard;
-                config.songboard!.enabled = true;
+                config.starboard ??= {} as unknown as typeof config.starboard;
+                config.starboard!.enabled = true;
             });
 
-        await context.reply("Songboard enabled.").success();
+        await context.reply("Starboard enabled.").success();
     }
 
     private async disable(context: InteractionContext) {
         await this.application
             .service("configurationService")
             .transaction(context.guildId, (config) => {
-                config.songboard ??= {} as unknown as typeof config.songboard;
-                config.songboard!.enabled = false;
+                config.starboard ??= {} as unknown as typeof config.starboard;
+                config.starboard!.enabled = false;
             });
 
-        await context.reply("Songboard disabled.").success();
+        await context.reply("Starboard disabled.").success();
     }
 
     private async setChannel(context: InteractionContext) {
@@ -139,8 +139,6 @@ class SongboardCommand extends Command {
             "channel",
             true,
         ) as GuildBasedChannel;
-
-        // check if the bot can send messages to the channel
 
         if (!channel.isTextBased()) {
             return await context
@@ -182,12 +180,12 @@ class SongboardCommand extends Command {
         await this.application
             .service("configurationService")
             .transaction(context.guildId, (config) => {
-                config.songboard ??= {} as unknown as typeof config.songboard;
-                config.songboard!.channel = channel.id;
+                config.starboard ??= {} as unknown as typeof config.starboard;
+                config.starboard!.channel = channel.id;
             });
 
         await context
-            .reply(`Songboard channel is now set to ${channel.toString()}.`)
+            .reply(`Starboard channel is now set to ${channel.toString()}.`)
             .success();
     }
 
@@ -195,10 +193,11 @@ class SongboardCommand extends Command {
         const emoji = context.options.getString("emoji", true);
 
         if (
-            !/<a?:.+:\d+>/.test(emoji) ||
-            !/(\u00a9|\u00ae|[\u25a0-\u27bf]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g.test(
-                emoji,
-            )
+            emoji.toLowerCase() !== "all" &&
+            (!/<a?:.+:\d+>/.test(emoji) ||
+                !/(\u00a9|\u00ae|[\u25a0-\u27bf]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g.test(
+                    emoji,
+                ))
         ) {
             return await context.reply("Invalid emoji specified.").error();
         }
@@ -206,12 +205,13 @@ class SongboardCommand extends Command {
         await this.application
             .service("configurationService")
             .transaction(context.guildId, (config) => {
-                config.songboard ??= {} as unknown as typeof config.songboard;
-                config.songboard!.reaction_emoji = emoji;
+                config.starboard ??= {} as unknown as typeof config.starboard;
+                config.starboard!.reaction_emoji =
+                    emoji.toLowerCase() === "all" ? true : emoji;
             });
 
         await context
-            .reply(`Songboard emoji is now set to ${emoji}.`)
+            .reply(`Starboard emoji is now set to ${emoji}.`)
             .success();
     }
 
@@ -221,12 +221,12 @@ class SongboardCommand extends Command {
         await this.application
             .service("configurationService")
             .transaction(context.guildId, (config) => {
-                config.songboard ??= {} as unknown as typeof config.songboard;
-                config.songboard!.min_reactions = count;
+                config.starboard ??= {} as unknown as typeof config.starboard;
+                config.starboard!.min_reactions = count;
             });
 
         await context
-            .reply(`Songboard reaction count is now set to ${count}.`)
+            .reply(`Starboard reaction count is now set to ${count}.`)
             .success();
     }
 
@@ -239,17 +239,17 @@ class SongboardCommand extends Command {
         const config = await this.application
             .service("configurationService")
             .transaction(context.guildId, (config) => {
-                config.songboard ??= {} as unknown as typeof config.songboard;
-                config.songboard!.excluded_channels ??= [];
+                config.starboard ??= {} as unknown as typeof config.starboard;
+                config.starboard!.excluded_channels ??= [];
 
-                const index = config.songboard!.excluded_channels.indexOf(
+                const index = config.starboard!.excluded_channels.indexOf(
                     channel.id,
                 );
 
                 if (index === -1) {
-                    config.songboard!.excluded_channels.push(channel.id);
+                    config.starboard!.excluded_channels.push(channel.id);
                 } else {
-                    config.songboard!.excluded_channels.splice(index, 1);
+                    config.starboard!.excluded_channels.splice(index, 1);
                 }
 
                 return config;
@@ -258,13 +258,13 @@ class SongboardCommand extends Command {
         await context
             .reply(
                 `Channel ${channel.toString()} is now ${
-                    config.songboard!.excluded_channels.includes(channel.id)
+                    config.starboard!.excluded_channels.includes(channel.id)
                         ? "excluded"
                         : "included"
-                } from songboard.`,
+                } from starboard.`,
             )
             .success();
     }
 }
 
-export default SongboardCommand;
+export default StarboardCommand;

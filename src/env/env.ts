@@ -1,4 +1,4 @@
-import { type, type inferTypeRoot } from "arktype";
+import { type } from "arktype";
 import axios from "axios";
 import "dotenv/config";
 import { createInterface } from "readline/promises";
@@ -14,7 +14,7 @@ export const EnvSchema = type({
     SONGBOARD_BOT_SYSTEM_ADMINS: "string",
 });
 
-export type EnvType = inferTypeRoot<typeof EnvSchema>;
+export type EnvType = typeof EnvSchema.infer;
 
 const logger = new Logger("env");
 
@@ -103,7 +103,7 @@ async function parseEnv(rawEnv = process.env) {
 
     if (env instanceof type.errors) {
         console.error(
-            `fatal error: invalid environment variables: ${env.message}`,
+            `fatal error: invalid environment variables: ${env.summary}`,
         );
         process.exit(1);
     }

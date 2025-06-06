@@ -6,8 +6,12 @@ class MessageReactionAddEventListener extends EventListener<Events.MessageReacti
     public override readonly name = Events.MessageReactionAdd;
 
     public override async execute(reaction: MessageReaction, user: User) {
-        await this.application
+        this.application
             .service("songboardService")
+            .onMessageReactionAdd(reaction, user)
+            .catch(this.application.logger.error);
+        this.application
+            .service("starboardService")
             .onMessageReactionAdd(reaction, user)
             .catch(this.application.logger.error);
     }

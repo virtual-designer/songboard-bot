@@ -184,7 +184,10 @@ class StarboardService extends Service {
             const userSection = new SectionBuilder()
                 .addTextDisplayComponents(
                     new TextDisplayBuilder().setContent(
-                        `## [Message](https://discord.com/channels/${encodeURIComponent(guild.id)}/${encodeURIComponent(message.channelId!)}/${encodeURIComponent(message.id)}) from <@${author.id}>\n\n_** **_`,
+                        `## Message https://discord.com/channels/${encodeURIComponent(guild.id)}/${encodeURIComponent(message.channelId!)}/${encodeURIComponent(message.id)} from <@${author.id}>\n` +
+                        `**Channel**: <#${message.channelId!}>\n` +
+                        `**Message ID**: <#${message.id}>\n` +
+                        `\n_** **_`,
                     ),
                 )
                 .setThumbnailAccessory(

@@ -3,22 +3,14 @@ import {
     ButtonBuilder,
     ButtonInteraction,
     ButtonStyle,
-    ContainerBuilder,
-    escapeInlineCode,
-    escapeMarkdown,
+    EmbedBuilder,
     Guild,
     Interaction,
-    MediaGalleryBuilder,
-    MediaGalleryItemBuilder,
+    italic,
     Message,
-    MessageFlags,
     MessageReaction,
     PartialMessage,
     PartialMessageReaction,
-    SectionBuilder,
-    SeparatorSpacingSize,
-    TextDisplayBuilder,
-    ThumbnailBuilder,
     User,
 } from "discord.js";
 import { and, eq } from "drizzle-orm";
@@ -179,126 +171,56 @@ class StarboardService extends Service {
         }
 
         try {
-            const container = new ContainerBuilder();
+            let footerText = `${reaction.count} ${reaction.emoji.toString()} reactions | User: ${user.id}`;
 
-            const userSection = new SectionBuilder()
-                .addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent(
-                        `## Message https://discord.com/channels/${encodeURIComponent(guild.id)}/${encodeURIComponent(message.channelId!)}/${encodeURIComponent(message.id)} from <@${author.id}>\n` +
-                        `**Channel**: <#${message.channelId!}>\n` +
-                        `**Message ID**: ${message.id}\n` +
-                        `\n_** **_`,
-                    ),
-                )
-                .setThumbnailAccessory(
-                    new ThumbnailBuilder()
-                        .setURL(author.displayAvatarURL({ size: 128 }))
-                        .setDescription(escapeMarkdown(author.username)),
-                );
+            const mainEmbed = new EmbedBuilder()
+                .setAuthor({
+                    name: author.username,
+                    iconURL: author.displayAvatarURL(),
+                })
+                .setDescription(message.content || italic("No content"))
+                .setFields([
+                    {
+                        name: "Message Link",
+                        value: message.url,
+                    },
+                ])
+                .setColor("Random")
+                .setTimestamp(message.createdAt);
 
-            if (message.content) {
-                userSection.addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent(message.content),
-                );
-            }
+            const embeds = [mainEmbed];
+            let nonMediaAttachments = 0;
 
-            container.addSectionComponents(userSection);
-
-            if (message.content && message.attachments.size > 0) {
-                container.addSeparatorComponents((separator) =>
-                    separator
-                        .setSpacing(SeparatorSpacingSize.Large)
-                        .setDivider(false),
-                );
-            }
-
-            if (message.attachments.size > 0) {
-                const mediaAttachments: MediaGalleryItemBuilder[] = [];
-                let nonMediaAttachmentList = "",
-                    nonMediaAttachmentCount = 0;
-
-                for (const attachment of message.attachments.values()) {
-                    if (
-                        attachment.contentType?.startsWith("image/") ||
-                        attachment.contentType?.startsWith("video/")
-                    ) {
-                        mediaAttachments.push(
-                            new MediaGalleryItemBuilder()
-                                .setURL(attachment.url)
-                                .setDescription(
-                                    !attachment.description
-                                        ? attachment.name
-                                        : `${attachment.name} - ${attachment.description}`,
-                                )
-                                .setSpoiler(attachment.spoiler),
+            for (const attachment of message.attachments.values()) {
+                if (
+                    attachment.contentType?.startsWith("image/") &&
+                    attachment.height &&
+                    attachment.width &&
+                    embeds.length < 5
+                ) {
+                    const mediaEmbed = new EmbedBuilder()
+                        .setImage(attachment.url)
+                        .setColor(mainEmbed.data.color || "Random")
+                        .setTitle(
+                            `${attachment.spoiler ? "[SPOILER] " : ""}${attachment.name}`,
                         );
-                    } else {
-                        const sanitizedName = attachment.name
-                            .replace(/[^a-zA-Z0-9_.-]/g, "_")
-                            .substring(0, 100);
 
-                        nonMediaAttachmentList += `- [${escapeInlineCode(
-                            sanitizedName,
-                        )}](${attachment.url})${
-                            attachment.description
-                                ? ` - ${escapeMarkdown(attachment.description)}`
-                                : ""
-                        }${attachment.spoiler ? " [SPOILER]" : ""}\n`;
-
-                        nonMediaAttachmentCount++;
-                    }
-                }
-
-                if (mediaAttachments.length > 0) {
-                    container.addMediaGalleryComponents(
-                        new MediaGalleryBuilder().addItems(mediaAttachments),
-                    );
-                }
-
-                if (nonMediaAttachmentList) {
-                    container.addSeparatorComponents((separator) =>
-                        separator
-                            .setSpacing(SeparatorSpacingSize.Small)
-                            .setDivider(false),
-                    );
-
-                    container.addTextDisplayComponents(
-                        new TextDisplayBuilder().setContent(
-                            `**${nonMediaAttachmentCount}** non-media attachments were scrubbed from the message:`,
-                        ),
-                    );
-
-                    container.addTextDisplayComponents(
-                        new TextDisplayBuilder().setContent(
-                            nonMediaAttachmentList,
-                        ),
-                    );
+                    embeds.push(mediaEmbed);
+                } else {
+                    nonMediaAttachments++;
                 }
             }
 
-            if (message.embeds.length > 0) {
-                container.addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent(
-                        `**${message.embeds.length}** embeds were scrubbed from the message.`,
-                    ),
-                );
+            if (nonMediaAttachments > 0) {
+                footerText += ` | Scrubbed Attachments: ${nonMediaAttachments}`;
             }
 
-            container.addSeparatorComponents((separator) =>
-                separator.setSpacing(SeparatorSpacingSize.Large),
-            );
-
-            container.addTextDisplayComponents(
-                new TextDisplayBuilder().setContent(
-                    `-# **${count}**  ${reaction.emoji.toString()}  ${
-                        count > 1 ? "reactions were" : "reaction was"
-                    } used to star this message.`,
-                ),
-            );
+            mainEmbed.setFooter({
+                text: footerText,
+            });
 
             const starboardMessage = await starboardChannel.send({
-                components: [container],
-                flags: [MessageFlags.IsComponentsV2],
+                embeds,
             });
 
             await this.application.drizzle.transaction(async (tx) => {
@@ -316,8 +238,7 @@ class StarboardService extends Service {
                 const actionRow = this.createActionRow(rowId);
 
                 await starboardMessage.edit({
-                    components: [container, actionRow],
-                    flags: [MessageFlags.IsComponentsV2],
+                    components: [actionRow],
                 });
             });
         } catch (error) {

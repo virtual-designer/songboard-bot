@@ -193,9 +193,8 @@ class StarboardService extends Service {
 
             for (const attachment of message.attachments.values()) {
                 if (
-                    attachment.contentType?.startsWith("image/") &&
-                    attachment.height &&
-                    attachment.width &&
+                    (attachment.contentType?.startsWith("image/") || /\.(jpe?g|png|gif|webp)$/.test(attachment.name)) &&
+                    !attachment.duration &&
                     embeds.length < 5
                 ) {
                     const mediaEmbed = new EmbedBuilder()

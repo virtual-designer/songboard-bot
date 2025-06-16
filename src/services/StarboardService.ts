@@ -172,13 +172,13 @@ class StarboardService extends Service {
 
         try {
             let footerText = `${reaction.count} ${reaction.emoji.toString()} reactions | User: ${user.id}`;
+            let description = message.content || italic("No content");
 
             const mainEmbed = new EmbedBuilder()
                 .setAuthor({
                     name: author.username,
                     iconURL: author.displayAvatarURL(),
                 })
-                .setDescription(message.content || italic("No content"))
                 .setFields([
                     {
                         name: "Message Link",
@@ -214,9 +214,7 @@ class StarboardService extends Service {
                 footerText += ` | Scrubbed Attachments: ${nonMediaAttachments}`;
             }
 
-            mainEmbed.setFooter({
-                text: footerText,
-            });
+            mainEmbed.setDescription(`${description}\n-# ${footerText}`);
 
             const starboardMessage = await starboardChannel.send({
                 embeds,

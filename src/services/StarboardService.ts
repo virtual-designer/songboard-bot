@@ -281,8 +281,8 @@ class StarboardService extends Service {
 
         if (
             !rowId ||
-            (serviceName !== "starboard" &&
-                action !== "upvote" &&
+            serviceName !== "starboard" ||
+                (action !== "upvote" &&
                 action !== "downvote")
         ) {
             return;
@@ -361,7 +361,6 @@ class StarboardService extends Service {
             await interaction.message
                 .edit({
                     components: [
-                        interaction.message.components[0],
                         this.createActionRow(
                             numericRowId,
                             upvotes.length,
@@ -438,7 +437,6 @@ class StarboardService extends Service {
             await interaction.message
                 .edit({
                     components: [
-                        interaction.message.components[0],
                         this.createActionRow(
                             numericRowId,
                             upvotes.length,

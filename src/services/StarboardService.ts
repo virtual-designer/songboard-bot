@@ -171,7 +171,7 @@ class StarboardService extends Service {
         }
 
         try {
-            let summary = `**${reaction.count}** ${reaction.emoji.toString()} reactions | ${message.url} | <@${user.id}>`;
+            let summary = `**${reaction.count}** ${reaction.emoji.toString()} reactions | ${message.url} | <@${message.author.id}>`;
             let description = message.content || italic("No content");
 
             const mainEmbed = new EmbedBuilder()

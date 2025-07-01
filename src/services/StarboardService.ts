@@ -171,7 +171,7 @@ class StarboardService extends Service {
         }
 
         try {
-            let footerText = `${reaction.count} ${reaction.emoji.toString()} reactions | User: ${user.id}`;
+            let summary = `**${reaction.count}** ${reaction.emoji.toString()} reactions | ${message.url} | <@${user.id}>`;
             let description = message.content || italic("No content");
 
             const mainEmbed = new EmbedBuilder()
@@ -179,12 +179,6 @@ class StarboardService extends Service {
                     name: author.username,
                     iconURL: author.displayAvatarURL(),
                 })
-                .setFields([
-                    {
-                        name: "Message Link",
-                        value: message.url,
-                    },
-                ])
                 .setColor("Random")
                 .setTimestamp(message.createdAt);
 
@@ -211,12 +205,13 @@ class StarboardService extends Service {
             }
 
             if (nonMediaAttachments > 0) {
-                footerText += ` | Scrubbed Attachments: ${nonMediaAttachments}`;
+                summary += ` | **${nonMediaAttachments}** Scrubbed Attachments`;
             }
 
-            mainEmbed.setDescription(`${description}\n-# ${footerText}`);
+            mainEmbed.setDescription(`${description}`);
 
             const starboardMessage = await starboardChannel.send({
+                content: summary,
                 embeds,
             });
 

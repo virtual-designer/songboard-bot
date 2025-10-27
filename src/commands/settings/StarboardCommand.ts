@@ -192,6 +192,8 @@ class StarboardCommand extends Command {
     private async setEmoji(context: InteractionContext) {
         const emojis = context.options.getString("emoji", true).split(/\s+/);
 
+        console.log(emojis);
+
         for (const emoji of emojis) {
             if (
                 emoji.toLowerCase() !== "all" &&

@@ -198,7 +198,7 @@ class SongboardCommand extends Command {
 
         for (const emoji of emojis) {
             if (
-                !/<a?:.+:\d+>/.test(emoji) ||
+                !/<a?:.+:\d+>/.test(emoji) &&
                 !/^\p{Extended_Pictographic}$/gu.test(emoji)
             ) {
                 return await context

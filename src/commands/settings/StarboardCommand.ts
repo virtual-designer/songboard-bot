@@ -198,9 +198,7 @@ class StarboardCommand extends Command {
             if (
                 emoji.toLowerCase() !== "all" &&
                 (!/<a?:.+:\d+>/.test(emoji) ||
-                    !/(\u00a9|\u00ae|[\u25a0-\u27bf]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g.test(
-                        emoji,
-                    ))
+                    !/^\p{Extended_Pictographic}$/gu.test(emoji))
             ) {
                 return await context
                     .reply("Invalid emoji specified: " + emoji)

@@ -45,7 +45,7 @@ class StarboardService extends Service {
             .service("configurationService")
             .forGuild(reaction.message.guild.id);
 
-        if (starboard?.channel === "0" || !starboard?.reaction_emoji) {
+        if (starboard?.channel === "0" || !starboard?.reaction_emojis) {
             this.application.logger.debug(
                 "Starboard is not configured or disabled",
             );
@@ -53,11 +53,14 @@ class StarboardService extends Service {
             return;
         }
 
+        const reactionEmojiId = reaction.emoji.id || "";
+        const reactionEmojiName = reaction.emoji.name || "";
+
         if (
             !starboard?.enabled ||
-            (reaction.emoji.id !== starboard?.reaction_emoji &&
-                reaction.emoji.name !== starboard?.reaction_emoji &&
-                starboard.reaction_emoji !== true) ||
+            (starboard.reaction_emojis !== true &&
+                !starboard.reaction_emojis.includes(reactionEmojiId) &&
+                !starboard.reaction_emojis.includes(reactionEmojiName)) ||
             starboard.excluded_channels.includes(reaction.message.channelId) ||
             !reaction.message.inGuild() ||
             (reaction.message.channel.parentId &&
@@ -172,7 +175,7 @@ class StarboardService extends Service {
 
         try {
             let summary = `**${reaction.count}** ${reaction.emoji.toString()} reactions | ${message.url} | <@${message.author.id}>`;
-            let description = message.content || italic("No content");
+            const description = message.content || italic("No content");
 
             const mainEmbed = new EmbedBuilder()
                 .setAuthor({
@@ -187,7 +190,8 @@ class StarboardService extends Service {
 
             for (const attachment of message.attachments.values()) {
                 if (
-                    (attachment.contentType?.startsWith("image/") || /\.(jpe?g|png|gif|webp)$/.test(attachment.name)) &&
+                    (attachment.contentType?.startsWith("image/") ||
+                        /\.(jpe?g|png|gif|webp)$/.test(attachment.name)) &&
                     !attachment.duration &&
                     embeds.length < 5
                 ) {
@@ -277,8 +281,7 @@ class StarboardService extends Service {
         if (
             !rowId ||
             serviceName !== "starboard" ||
-                (action !== "upvote" &&
-                action !== "downvote")
+            (action !== "upvote" && action !== "downvote")
         ) {
             return;
         }

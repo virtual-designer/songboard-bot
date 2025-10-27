@@ -45,12 +45,14 @@ class SongboardCommand extends Command {
                 .addSubcommand((subcommand) =>
                     subcommand
                         .setName("emoji")
-                        .setDescription("Set a songboard trigger emoji")
+                        .setDescription(
+                            "Set one or more songboard trigger emojis",
+                        )
                         .addStringOption((option) =>
                             option
                                 .setName("emoji")
                                 .setDescription(
-                                    "The trigger emoji for songboard",
+                                    "The trigger emoji(s) for songboard, separated by spaces",
                                 )
                                 .setRequired(true),
                         ),
@@ -192,26 +194,30 @@ class SongboardCommand extends Command {
     }
 
     private async setEmoji(context: InteractionContext) {
-        const emoji = context.options.getString("emoji", true);
+        const emojis = context.options.getString("emoji", true).split(/\s+/);
 
-        if (
-            !/<a?:.+:\d+>/.test(emoji) ||
-            !/(\u00a9|\u00ae|[\u25a0-\u27bf]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g.test(
-                emoji,
-            )
-        ) {
-            return await context.reply("Invalid emoji specified.").error();
+        for (const emoji of emojis) {
+            if (
+                !/<a?:.+:\d+>/.test(emoji) ||
+                !/(\u00a9|\u00ae|[\u25a0-\u27bf]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g.test(
+                    emoji,
+                )
+            ) {
+                return await context
+                    .reply("Invalid emoji specified: " + emoji)
+                    .error();
+            }
         }
 
         await this.application
             .service("configurationService")
             .transaction(context.guildId, (config) => {
                 config.songboard ??= {} as unknown as typeof config.songboard;
-                config.songboard!.reaction_emoji = emoji;
+                config.songboard!.reaction_emojis = emojis;
             });
 
         await context
-            .reply(`Songboard emoji is now set to ${emoji}.`)
+            .reply(`Songboard emoji(s) are now set to ${emojis.join(", ")}.`)
             .success();
     }
 

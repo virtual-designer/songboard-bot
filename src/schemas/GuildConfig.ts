@@ -4,14 +4,14 @@ export const GuildConfigSchema = type({
     prefix: ["string", "=", "$"],
     "songboard?": {
         enabled: "boolean",
-        reaction_emoji: "string | undefined = '🎵'",
+        reaction_emojis: ["string[]", "=", () => ["🎵"]],
         channel: [/^\d+$/, "=", () => "0"],
         min_reactions: "number = 5",
         excluded_channels: ["string[]", "=", () => []],
     },
     "starboard?": {
         enabled: "boolean",
-        reaction_emoji: "string | true | undefined = '⭐'",
+        reaction_emojis: ["string[] | true", "=", () => ["⭐"]],
         channel: [/^\d+$/, "=", () => "0"],
         min_reactions: "number = 5",
         excluded_channels: ["string[]", "=", () => []],

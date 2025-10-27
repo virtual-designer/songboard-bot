@@ -48,7 +48,7 @@ class SongboardService extends Service {
             .service("configurationService")
             .forGuild(reaction.message.guild.id);
 
-        if (songboard?.channel === "0" || !songboard?.reaction_emoji) {
+        if (songboard?.channel === "0" || !songboard?.reaction_emojis) {
             this.application.logger.debug(
                 "Songboard is not configured or disabled",
             );
@@ -56,10 +56,13 @@ class SongboardService extends Service {
             return;
         }
 
+        const reactionEmojiId = reaction.emoji.id || "";
+        const reactionEmojiName = reaction.emoji.name || "";
+
         if (
             !songboard?.enabled ||
-            (reaction.emoji.id !== songboard?.reaction_emoji &&
-                reaction.emoji.name !== songboard?.reaction_emoji) ||
+            (!songboard.reaction_emojis.includes(reactionEmojiId) &&
+                !songboard.reaction_emojis.includes(reactionEmojiName)) ||
             songboard.excluded_channels.includes(reaction.message.channelId) ||
             !reaction.message.inGuild() ||
             (reaction.message.channel.parentId &&

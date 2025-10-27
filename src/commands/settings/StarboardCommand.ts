@@ -45,12 +45,12 @@ class StarboardCommand extends Command {
                 .addSubcommand((subcommand) =>
                     subcommand
                         .setName("emoji")
-                        .setDescription("Set a starboard trigger emoji")
+                        .setDescription("Set starboard trigger emojis")
                         .addStringOption((option) =>
                             option
                                 .setName("emoji")
                                 .setDescription(
-                                    "The trigger emoji for starboard. Set this to 'ALL' to use all reactions.",
+                                    "The trigger emojis, separated by spaces. Use 'ALL' to for all reactions.",
                                 )
                                 .setRequired(true),
                         ),
@@ -190,28 +190,32 @@ class StarboardCommand extends Command {
     }
 
     private async setEmoji(context: InteractionContext) {
-        const emoji = context.options.getString("emoji", true);
+        const emojis = context.options.getString("emoji", true).split(/\s+/);
 
-        if (
-            emoji.toLowerCase() !== "all" &&
-            (!/<a?:.+:\d+>/.test(emoji) ||
-                !/(\u00a9|\u00ae|[\u25a0-\u27bf]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g.test(
-                    emoji,
-                ))
-        ) {
-            return await context.reply("Invalid emoji specified.").error();
+        for (const emoji of emojis) {
+            if (
+                emoji.toLowerCase() !== "all" &&
+                (!/<a?:.+:\d+>/.test(emoji) ||
+                    !/(\u00a9|\u00ae|[\u25a0-\u27bf]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g.test(
+                        emoji,
+                    ))
+            ) {
+                return await context
+                    .reply("Invalid emoji specified: " + emoji)
+                    .error();
+            }
         }
 
         await this.application
             .service("configurationService")
             .transaction(context.guildId, (config) => {
                 config.starboard ??= {} as unknown as typeof config.starboard;
-                config.starboard!.reaction_emoji =
-                    emoji.toLowerCase() === "all" ? true : emoji;
+                config.starboard!.reaction_emojis =
+                    emojis[0].toLowerCase() === "all" ? true : emojis;
             });
 
         await context
-            .reply(`Starboard emoji is now set to ${emoji}.`)
+            .reply(`Starboard emoji(s) are now set to ${emojis.join(", ")}.`)
             .success();
     }
 
